@@ -120,24 +120,26 @@
   }
   .mlsb-flex-between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
 
-/* ===== RESPONSIVE FIX (ADD THIS AT END) ===== */
+/* ===== RESPONSIVE FIX (REPLACE OLD ONE WITH THIS) ===== */
 
-/* Make root adapt nicely */
+/* Keep layout centered and not overly tall */
 #mlsb-root{
   width:100%;
-  max-width:900px;
+  max-width:720px;
   margin:0 auto;
-  min-height:100vh;
+  min-height:auto;   /* 🔥 important fix */
 }
 
-/* Canvas becomes responsive */
+/* Canvas responsive but controlled */
 #mlsb-canvas{
   width:100%;
+  max-width:100%;
   height:auto;
 }
 
-/* Mobile adjustments */
+/* Tablet + Mobile */
 @media (max-width: 768px){
+
   .mlsb-header{
     flex-direction:column;
     align-items:flex-start;
@@ -146,15 +148,21 @@
   }
 
   .mlsb-panel{
-    padding:18px 14px;
+    padding:16px;
   }
 
   .mlsb-glow-title{
     font-size:20px;
+    text-align:center;
+  }
+
+  .mlsb-sub{
+    text-align:center;
   }
 
   .mlsb-hud{
     gap:10px;
+    justify-content:center;
   }
 
   .mlsb-hud-box{
@@ -174,12 +182,14 @@
 
   .mlsb-flex-between{
     flex-direction:column;
-    align-items:flex-start;
+    align-items:center;
+    text-align:center;
   }
 }
 
 /* Small phones */
 @media (max-width: 480px){
+
   .mlsb-glow-title{
     font-size:18px;
   }
