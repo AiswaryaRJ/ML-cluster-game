@@ -1,193 +1,952 @@
+<style>
+
+  :root{
+
+    --bg-deep:#0a0714;
+
+    --bg-mid:#150c28;
+
+    --violet:#7c3aed;
+
+    --violet-glow:#a78bfa;
+
+    --amber:#f2b84b;
+
+    --teal:#3fbfa0;
+
+    --coral:#e8604c;
+
+    --ink:#e8e3f5;
+
+    --dim:#8b81ab;
+
+    --line:#3a2a5c;
+
+  }
+
+  *{box-sizing:border-box;}
+
+  #mlsb-root{
+
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+
+    background:radial-gradient(circle at 50% 0%, var(--bg-mid) 0%, var(--bg-deep) 65%);
+
+    color:var(--ink);
+
+    min-height:600px;
+
+    border-radius:18px;
+
+    padding:0;
+
+    position:relative;
+
+    overflow:hidden;
+
+    border:1px solid var(--line);
+
+  }
+
+  #mlsb-root::before{
+
+    content:'';
+
+    position:absolute;top:0;left:0;right:0;height:100%;
+
+    background-image:
+
+      linear-gradient(var(--line) 1px, transparent 1px),
+
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+
+    background-size:40px 40px;
+
+    opacity:0.12;
+
+    pointer-events:none;
+
+  }
+
+  .mlsb-header{
+
+    display:flex;align-items:center;justify-content:space-between;
+
+    padding:16px 24px;border-bottom:1px solid var(--line);
+
+    position:relative;z-index:2;
+
+  }
+
+  .mlsb-logo{
+
+    font-weight:800;letter-spacing:2px;font-size:15px;color:var(--ink);
+
+    text-transform:uppercase;
+
+  }
+
+  .mlsb-logo span{color:var(--violet-glow);}
+
+  .mlsb-tag{font-size:11px;color:var(--dim);letter-spacing:3px;text-transform:uppercase;}
+
+  .mlsb-panel{
+
+    position:relative;z-index:2;padding:28px 24px;
+
+  }
+
+  .mlsb-diamond-btn{
+
+    display:inline-block;
+
+    background:linear-gradient(135deg,var(--violet) 0%,#4c1d95 100%);
+
+    color:#fff;border:1px solid var(--violet-glow);
+
+    padding:12px 28px;font-weight:700;letter-spacing:1.5px;
+
+    text-transform:uppercase;font-size:13px;cursor:pointer;
+
+    clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);
+
+    transition:all .15s ease;box-shadow:0 0 18px rgba(124,58,237,.45);
+
+  }
+
+  .mlsb-diamond-btn:hover{box-shadow:0 0 28px rgba(167,139,250,.75);transform:translateY(-1px);}
+
+  .mlsb-diamond-btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none;}
+
+  .mlsb-input{
+
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+
+    color:var(--ink);padding:11px 14px;font-size:14px;border-radius:6px;
+
+    outline:none;width:100%;
+
+  }
+
+  .mlsb-input:focus{border-color:var(--violet-glow);}
+
+  .mlsb-card{
+
+    background:rgba(255,255,255,.03);border:1px solid var(--line);
+
+    border-radius:10px;padding:18px;position:relative;
+
+  }
+
+  .mlsb-glow-title{
+
+    font-size:26px;font-weight:800;letter-spacing:1px;
+
+    background:linear-gradient(90deg,#fff,var(--violet-glow));
+
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+
+  }
+
+  .mlsb-sub{color:var(--dim);font-size:13px;line-height:1.6;}
+
+  .mlsb-hud{
+
+    display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;
+
+  }
+
+  .mlsb-hud-box{
+
+    background:rgba(124,58,237,.1);border:1px solid var(--violet);
+
+    border-radius:8px;padding:10px 16px;text-align:center;min-width:100px;
+
+  }
+
+  .mlsb-hud-box .num{font-size:22px;font-weight:800;color:var(--amber);font-family:monospace;}
+
+  .mlsb-hud-box .lbl{font-size:10px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-top:2px;}
+
+  #mlsb-canvas-wrap{position:relative;}
+
+  #mlsb-canvas{
+
+    background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:10px;
+
+    width:100%;display:block;cursor:pointer;
+
+  }
+
+  #mlsb-feedback{
+
+    position:absolute;top:10px;right:10px;padding:6px 16px;border-radius:6px;
+
+    font-weight:700;font-size:13px;letter-spacing:1px;opacity:0;transition:opacity .2s;
+
+    pointer-events:none;
+
+  }
+
+  #mlsb-feedback.correct{background:rgba(63,191,160,.2);color:var(--teal);border:1px solid var(--teal);opacity:1;}
+
+  #mlsb-feedback.wrong{background:rgba(232,96,76,.2);color:var(--coral);border:1px solid var(--coral);opacity:1;}
+
+  .shake{animation:mlsb-shake .35s;}
+
+  @keyframes mlsb-shake{
+
+    0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}
+
+  }
+
+  .pulse{animation:mlsb-pulse .5s;}
+
+  @keyframes mlsb-pulse{
+
+    0%{filter:drop-shadow(0 0 0px var(--teal));}
+
+    50%{filter:drop-shadow(0 0 14px var(--teal));}
+
+    100%{filter:drop-shadow(0 0 0px var(--teal));}
+
+  }
+
+  table.mlsb-lb{width:100%;border-collapse:collapse;font-size:14px;}
+
+  table.mlsb-lb th{text-align:left;color:var(--dim);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--line);}
+
+  table.mlsb-lb td{padding:10px 10px;border-bottom:1px solid rgba(58,42,92,.4);}
+
+  table.mlsb-lb tr:first-child td{color:var(--amber);font-weight:800;}
+
+  .rank-badge{
+
+    display:inline-block;width:22px;height:22px;border-radius:50%;
+
+    background:rgba(124,58,237,.25);text-align:center;line-height:22px;
+
+    font-size:11px;font-weight:700;color:var(--violet-glow);
+
+  }
+
+  .mlsb-mode-toggle{
+
+    position:absolute;top:16px;right:24px;font-size:11px;color:var(--dim);
+
+    cursor:pointer;text-decoration:underline;z-index:3;
+
+  }
+
+  .mlsb-flex-between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+
+  
+
+  
+
+</style>
+
+<div id="mlsb-root">
+
+  <div class="mlsb-header">
+
+    <div>
+
+      <div class="mlsb-logo">M<span>L</span> SANDBOX</div>
+
+      <div class="mlsb-tag">Train · Predict · Conquer</div>
+
+    </div>
+
+    <div class="mlsb-tag" id="mlsb-stage-label">SPEED CLUSTER</div>
+
+  </div>
+
+  <div class="mlsb-panel" id="mlsb-app"></div>
+
+</div>
+
 <script>
+
 (function(){
+
   const root = document.getElementById('mlsb-app');
+
   const stageLabel = document.getElementById('mlsb-stage-label');
+
   let playerName = '';
+
   let isHost = false;
+
+  // ---------- Fixed dataset (same for every student -> fair race) ----------
+
+  // ---------- Shared leaderboard backend (Firebase Realtime Database) ----------
+
+  // 1. Create a free project at console.firebase.google.com
+
+  // 2. Build -> Realtime Database -> Create Database -> "test mode"
+
+  // 3. Paste the Database URL below (looks like https://xxxx-default-rtdb.firebaseio.com)
 
   const FIREBASE_DB_URL = "PASTE_YOUR_FIREBASE_DATABASE_URL_HERE";
 
   async function submitScore(entry){
+
     const res = await fetch(FIREBASE_DB_URL + "/scores.json", {
+
       method: "POST",
+
       headers: {"Content-Type":"application/json"},
+
       body: JSON.stringify(entry)
+
     });
+
     if (!res.ok) throw new Error("Firebase write failed");
+
     return res.json();
+
   }
 
   async function fetchScores(){
+
     const res = await fetch(FIREBASE_DB_URL + "/scores.json");
+
     if (!res.ok) throw new Error("Firebase read failed");
+
     const data = await res.json();
+
     if (!data) return [];
+
     return Object.values(data);
+
   }
 
   const POINTS = [
+
     {id:0, x:80,  y:260, label:'A'},
+
     {id:1, x:130, y:230, label:'B'},
+
     {id:2, x:340, y:90,  label:'C'},
+
     {id:3, x:390, y:120, label:'D'},
+
     {id:4, x:230, y:300, label:'E'},
+
     {id:5, x:410, y:280, label:'F'},
+
     {id:6, x:150, y:120, label:'G'},
+
     {id:7, x:300, y:250, label:'H'},
+
     {id:8, x:420, y:190, label:'I'},
+
     {id:9, x:60,  y:100, label:'J'},
+
   ];
 
   function dist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
 
+  // ---------- Router ----------
+
   function render(){
+
     root.innerHTML = '';
+
     if (window.location.hash === '#host') { isHost = true; renderHostView(); return; }
+
     if (!playerName) { renderNameEntry(); return; }
+
     renderGame();
+
   }
 
   function renderNameEntry(){
+
     root.innerHTML = `
+
       <div style="max-width:420px;margin:20px auto;text-align:center;">
+
         <div class="mlsb-glow-title">SPEED CLUSTER</div>
-        <input class="mlsb-input" id="mlsb-name-input" placeholder="Enter your name">
-        <button class="mlsb-diamond-btn" id="mlsb-start-btn">START</button>
+
+        <p class="mlsb-sub" style="margin:10px 0 22px;">
+
+          You are the algorithm. Merge the two closest clusters, over and over,
+
+          faster and more accurately than everyone else. 2 minutes on the clock.
+
+        </p>
+
+        <input class="mlsb-input" id="mlsb-name-input" placeholder="Enter your name" maxlength="20" style="margin-bottom:14px;">
+
+        <div>
+
+          <button class="mlsb-diamond-btn" id="mlsb-start-btn">ENTER THE SANDBOX</button>
+
+        </div>
+
+        <p style="margin-top:18px;font-size:11px;color:var(--dim);">
+
+          Hosting? <span class="mlsb-mode-toggle" id="mlsb-goto-host" style="position:static;">Open leaderboard view</span>
+
+        </p>
+
       </div>
+
     `;
+
     document.getElementById('mlsb-start-btn').onclick = () => {
+
       const v = document.getElementById('mlsb-name-input').value.trim();
+
       if (!v) return;
+
       playerName = v;
+
       render();
+
     };
+
+    document.getElementById('mlsb-name-input').addEventListener('keydown', e=>{
+
+      if (e.key==='Enter') document.getElementById('mlsb-start-btn').click();
+
+    });
+
+    document.getElementById('mlsb-goto-host').onclick = () => {
+
+      window.location.hash = '#host';
+
+      render();
+
+    };
+
   }
 
-  let clusters, correctScore, timeLeft, timerHandle, gameActive, selected;
+  // ---------- Core game state ----------
+
+  let clusters, correctScore, wrongStreak, timeLeft, timerHandle, gameActive, selected;
 
   function resetGame(){
+
     clusters = POINTS.map(p => ({ ids:[p.id], points:[p] }));
+
     correctScore = 0;
+
     selected = [];
+
     gameActive = false;
+
     timeLeft = 120;
+
   }
 
   function minLinkageDistance(c1,c2){
-    let bestPair = null;
-    let min = Infinity;
 
-    for(const a of c1.points){
-      for(const b of c2.points){
-        const d = dist(a,b);
-        if (d < min){
-          min = d;
-          bestPair = [a,b,d];
-        }
-      }
+    let m = Infinity;
+
+    for(const a of c1.points) for(const b of c2.points){
+
+      const d = dist(a,b);
+
+      if (d<m) m=d;
+
     }
-    return bestPair;
+
+    return m;
+
   }
 
-  function nearestNeighborOf(ci){
-    let best=-1, bestD=Infinity;
-    for(let k=0;k<clusters.length;k++){
-      if (k===ci) continue;
-      const [, , d] = minLinkageDistance(clusters[ci],clusters[k]);
-      if (d<bestD){ bestD=d; best=k; }
+  function findBestPair(){
+
+    let best=null, bestD=Infinity;
+
+    for(let i=0;i<clusters.length;i++){
+
+      for(let j=i+1;j<clusters.length;j++){
+
+        const d = minLinkageDistance(clusters[i],clusters[j]);
+
+        if (d<bestD-1e-6){ bestD=d; best=[i,j]; }
+
+      }
+
     }
+
     return best;
+
+  }
+
+  // A merge is "correct" if the two clusters are each other's nearest
+
+  // neighbor right now — not just if it's the single closest pair on the
+
+  // whole canvas. This lets two unrelated close pairs (e.g. A-B and C-D)
+
+  // be merged in either order, since they don't compete with each other.
+
+  function nearestNeighborOf(ci){
+
+    let best=-1, bestD=Infinity;
+
+    for(let k=0;k<clusters.length;k++){
+
+      if (k===ci) continue;
+
+      const d = minLinkageDistance(clusters[ci],clusters[k]);
+
+      if (d<bestD-1e-6){ bestD=d; best=k; }
+
+    }
+
+    return best;
+
   }
 
   function isValidMerge(i,j){
+
     return nearestNeighborOf(i)===j && nearestNeighborOf(j)===i;
+
   }
 
   function renderGame(){
+
     resetGame();
+
     root.innerHTML = `
-      <div id="mlsb-canvas-wrap">
-        <canvas id="mlsb-canvas" width="480" height="340"></canvas>
+
+      <div class="mlsb-flex-between" style="margin-bottom:14px;">
+
+        <div class="mlsb-glow-title" style="font-size:20px;">Hey ${escapeHtml(playerName)}, build the dendrogram</div>
+
+        <div class="mlsb-sub">Click two clusters you believe are closest, then confirm.</div>
+
       </div>
-      <div id="mlsb-formula" style="margin-top:15px;font-family:monospace;color:#f2b84b;"></div>
-      <button id="mlsb-go-btn">START</button>
+
+      <div class="mlsb-hud">
+
+        <div class="mlsb-hud-box"><div class="num" id="mlsb-timer">2:00</div><div class="lbl">Time Left</div></div>
+
+        <div class="mlsb-hud-box"><div class="num" id="mlsb-score">0</div><div class="lbl">Correct Merges</div></div>
+
+        <div class="mlsb-hud-box"><div class="num" id="mlsb-clusters">${clusters.length}</div><div class="lbl">Clusters Left</div></div>
+
+      </div>
+
+      <div id="mlsb-canvas-wrap">
+
+        <canvas id="mlsb-canvas" width="480" height="340"></canvas>
+
+        <div id="mlsb-feedback"></div>
+
+      </div>
+
+      <div style="margin-top:16px;text-align:center;" id="mlsb-controls">
+
+        <button class="mlsb-diamond-btn" id="mlsb-go-btn">START — 3, 2, 1...</button>
+
+      </div>
+
+      <div id="mlsb-result" style="margin-top:18px;"></div>
+
     `;
 
     const canvas = document.getElementById('mlsb-canvas');
+
     const ctx = canvas.getContext('2d');
 
+    function colorFor(i){
+
+      const palette = ['#a78bfa','#f2b84b','#3fbfa0','#e8604c','#7c3aed','#e0aaff','#ffd166'];
+
+      return palette[i % palette.length];
+
+    }
+
     function draw(){
+
       ctx.clearRect(0,0,canvas.width,canvas.height);
-      clusters.forEach(c=>{
-        c.points.forEach(p=>{
-          ctx.beginPath();
-          ctx.arc(p.x,p.y,8,0,Math.PI*2);
-          ctx.fillStyle="#a78bfa";
-          ctx.fill();
-          ctx.fillText(p.label, p.x+10, p.y-10);
-        });
+
+      // connecting lines between merged points within a cluster
+
+      clusters.forEach((c,ci)=>{
+
+        const col = colorFor(ci);
+
+        if (c.points.length>1){
+
+          ctx.strokeStyle = col+'88';
+
+          ctx.lineWidth=2;
+
+          for(let a=0;a<c.points.length;a++){
+
+            for(let b=a+1;b<c.points.length;b++){
+
+              ctx.beginPath();
+
+              ctx.moveTo(c.points[a].x, c.points[a].y);
+
+              ctx.lineTo(c.points[b].x, c.points[b].y);
+
+              ctx.stroke();
+
+            }
+
+          }
+
+        }
+
       });
+
+      clusters.forEach((c,ci)=>{
+
+        const col = colorFor(ci);
+
+        const isSel = selected.includes(ci);
+
+        c.points.forEach(p=>{
+
+          ctx.beginPath();
+
+          ctx.arc(p.x,p.y, isSel?11:8, 0, Math.PI*2);
+
+          ctx.fillStyle = col;
+
+          ctx.shadowColor = isSel ? col : 'transparent';
+
+          ctx.shadowBlur = isSel ? 18 : 0;
+
+          ctx.fill();
+
+          ctx.shadowBlur = 0;
+
+          ctx.strokeStyle = isSel ? '#fff' : 'rgba(255,255,255,.4)';
+
+          ctx.lineWidth = isSel?2:1;
+
+          ctx.stroke();
+
+          ctx.fillStyle = '#fff';
+
+          ctx.font = '11px monospace';
+
+          ctx.fillText(p.label, p.x+12, p.y-10);
+
+        });
+
+        // centroid ring for merged clusters
+
+        if (c.points.length>1){
+
+          const cx = c.points.reduce((s,p)=>s+p.x,0)/c.points.length;
+
+          const cy = c.points.reduce((s,p)=>s+p.y,0)/c.points.length;
+
+          ctx.beginPath();
+
+          ctx.arc(cx,cy,4,0,Math.PI*2);
+
+          ctx.fillStyle = '#fff';
+
+          ctx.fill();
+
+        }
+
+      });
+
     }
 
     function clusterAt(x,y){
+
       for(let ci=0; ci<clusters.length; ci++){
+
         for(const p of clusters[ci].points){
+
           if (Math.hypot(p.x-x,p.y-y) < 14) return ci;
+
         }
+
       }
+
       return -1;
+
     }
 
     canvas.addEventListener('click', (e)=>{
+
       if (!gameActive) return;
+
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX-rect.left, y=e.clientY-rect.top;
+
+      const scaleX = canvas.width/rect.width, scaleY = canvas.height/rect.height;
+
+      const x = (e.clientX-rect.left)*scaleX, y=(e.clientY-rect.top)*scaleY;
+
       const ci = clusterAt(x,y);
+
       if (ci===-1) return;
 
-      selected.push(ci);
-      if (selected.length===2){
-        attemptMerge(selected[0], selected[1]);
-        selected=[];
+      if (selected.includes(ci)) { selected = selected.filter(s=>s!==ci); }
+
+      else {
+
+        selected.push(ci);
+
+        if (selected.length>2) selected.shift();
+
       }
+
+      draw();
+
+      if (selected.length===2) attemptMerge(selected[0], selected[1]);
+
     });
 
-    function showFormula(p1,p2,d){
-      const formulaDiv = document.getElementById('mlsb-formula');
-      formulaDiv.innerHTML += `
-        <div>
-        d(${p1.label},${p2.label}) = √[( ${p1.x} - ${p2.x} )² + ( ${p1.y} - ${p2.y} )²]
-        = √[( ${p1.x-p2.x} )² + ( ${p1.y-p2.y} )²]
-        = ${d.toFixed(2)}
-        </div><br>
-      `;
+    function flash(kind){
+
+      const fb = document.getElementById('mlsb-feedback');
+
+      fb.className = kind;
+
+      fb.textContent = kind==='correct' ? '✓ CORRECT MERGE' : '✗ NOT CLOSEST — TRY AGAIN';
+
+      canvas.classList.remove('shake','pulse');
+
+      canvas.classList.add(kind==='correct'?'pulse':'shake');
+
+      setTimeout(()=>{ fb.className=''; canvas.classList.remove('shake','pulse'); }, 550);
+
     }
 
     function attemptMerge(i,j){
-      if (isValidMerge(i,j)){
-        const [p1,p2,d] = minLinkageDistance(clusters[i],clusters[j]);
 
-        showFormula(p1,p2,d); // ⭐ YOUR FEATURE
+      const chosenIsBest = isValidMerge(i,j);
 
-        clusters[i] = {
-          ids:[...clusters[i].ids,...clusters[j].ids],
-          points:[...clusters[i].points,...clusters[j].points]
-        };
-        clusters.splice(j,1);
+      if (chosenIsBest){
+
+        const [a,b] = i<j? [i,j]:[j,i];
+
+        clusters[a] = { ids:[...clusters[a].ids,...clusters[b].ids], points:[...clusters[a].points,...clusters[b].points] };
+
+        clusters.splice(b,1);
+
         correctScore++;
+
+        document.getElementById('mlsb-score').textContent = correctScore;
+
+        document.getElementById('mlsb-clusters').textContent = clusters.length;
+
+        flash('correct');
+
+        if (clusters.length===1){ endGame(true); }
+
+      } else {
+
+        flash('wrong');
+
       }
+
+      selected = [];
+
       draw();
+
     }
 
     draw();
 
-    document.getElementById('mlsb-go-btn').onclick = ()=>{
-      gameActive=true;
-    };
+    document.getElementById('mlsb-go-btn').onclick = startCountdown;
+
+    function startCountdown(){
+
+      const btn = document.getElementById('mlsb-go-btn');
+
+      let n=3;
+
+      btn.disabled = true;
+
+      const iv = setInterval(()=>{
+
+        btn.textContent = n>0 ? n : 'GO!';
+
+        n--;
+
+        if (n<-1){
+
+          clearInterval(iv);
+
+          document.getElementById('mlsb-controls').style.display='none';
+
+          beginTimedRound();
+
+        }
+
+      }, 700);
+
+    }
+
+    function beginTimedRound(){
+
+      gameActive = true;
+
+      timeLeft = 120;
+
+      updateTimerDisplay();
+
+      timerHandle = setInterval(()=>{
+
+        timeLeft--;
+
+        updateTimerDisplay();
+
+        if (timeLeft<=0){ clearInterval(timerHandle); endGame(false); }
+
+      },1000);
+
+    }
+
+    function updateTimerDisplay(){
+
+      const m = Math.floor(timeLeft/60), s = timeLeft%60;
+
+      document.getElementById('mlsb-timer').textContent = m+':'+String(s).padStart(2,'0');
+
+    }
+
+    async function endGame(finishedAll){
+
+      gameActive = false;
+
+      if (timerHandle) clearInterval(timerHandle);
+
+      const elapsed = 120 - timeLeft;
+
+      const resultBox = document.getElementById('mlsb-result');
+
+      resultBox.innerHTML = `
+
+        <div class="mlsb-card" style="text-align:center;">
+
+          <div class="mlsb-glow-title" style="font-size:22px;">${finishedAll?'FULL DENDROGRAM BUILT 🎉':"TIME'S UP"}</div>
+
+          <p class="mlsb-sub">Correct merges: <b style="color:var(--amber)">${correctScore}</b> / ${POINTS.length-1}
+
+          &nbsp;·&nbsp; Time used: <b style="color:var(--amber)">${elapsed}s</b></p>
+
+          <p class="mlsb-sub" id="mlsb-submit-status">Submitting your score...</p>
+
+        </div>
+
+      `;
+
+      try {
+
+        await submitScore({
+
+          name: playerName, correct: correctScore, elapsed: elapsed,
+
+          finishedAll: finishedAll, ts: Date.now()
+
+        });
+
+        document.getElementById('mlsb-submit-status').textContent = 'Score submitted — check the projector!';
+
+      } catch(err){
+
+        document.getElementById('mlsb-submit-status').textContent = 'Could not submit score (check your connection / Firebase URL).';
+
+      }
+
+    }
+
   }
 
-  function renderHostView(){}
+  function escapeHtml(s){
+
+    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  }
+
+  // ---------- Host / leaderboard view ----------
+
+  async function renderHostView(){
+
+    stageLabel.textContent = 'LIVE LEADERBOARD';
+
+    root.innerHTML = `
+
+      <div class="mlsb-flex-between" style="margin-bottom:14px;">
+
+        <div class="mlsb-glow-title" style="font-size:22px;">SPEED CLUSTER — LEADERBOARD</div>
+
+        <span class="mlsb-mode-toggle" id="mlsb-back" style="position:static;">Back to player view</span>
+
+      </div>
+
+      <div class="mlsb-card">
+
+        <table class="mlsb-lb">
+
+          <thead><tr><th>#</th><th>Name</th><th>Correct</th><th>Time</th><th>Status</th></tr></thead>
+
+          <tbody id="mlsb-lb-body"><tr><td colspan="5" class="mlsb-sub">Waiting for scores...</td></tr></tbody>
+
+        </table>
+
+      </div>
+
+    `;
+
+    document.getElementById('mlsb-back').onclick = ()=>{ window.location.hash=''; isHost=false; render(); };
+
+    async function refresh(){
+
+      try{
+
+        const entries = await fetchScores();
+
+        if (!entries.length) return;
+
+        entries.sort((a,b)=> b.correct - a.correct || a.elapsed - b.elapsed);
+
+        const body = document.getElementById('mlsb-lb-body');
+
+        body.innerHTML = entries.map((e,i)=>`
+
+          <tr>
+
+            <td><span class="rank-badge">${i+1}</span></td>
+
+            <td>${escapeHtml(e.name)}</td>
+
+            <td style="color:var(--teal);font-weight:700;">${e.correct}</td>
+
+            <td style="font-family:monospace;">${e.elapsed}s</td>
+
+            <td>${e.finishedAll?'✅ finished':'⏱ time up'}</td>
+
+          </tr>
+
+        `).join('');
+
+      }catch(err){ /* Firebase URL not set yet, or offline */ }
+
+    }
+
+    refresh();
+
+    setInterval(refresh, 2500);
+
+  }
 
   render();
+
 })();
+
 </script>
+
+
+
+
+
